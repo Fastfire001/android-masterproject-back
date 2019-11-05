@@ -55,4 +55,28 @@ class ASQICNAPI {
             var_dump($e);
         }
     }
+
+    /**
+     * @param string $keyword
+     * @return mixed
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * Make a request to /search
+     */
+    public function search(string $keyword)
+    {
+        $httpClient = HttpClient::create();
+        try {
+            $response = $httpClient->request('GET', $this->createUrl('/search', ['keyword' => $keyword]));
+            try {
+                return json_decode($response->getContent(), true);
+            } catch (Exception $e) {
+                var_dump($e);
+            }
+        } catch (TransportExceptionInterface $e) {
+            var_dump($e);
+        }
+
+    }
 }
