@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\StationFeed;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -14,6 +16,13 @@ class ASQICNAPI {
     private const API_KEY = '79c79e7f80b7fecaf745d71a69aa145b9d790043';
 
     private const API_ENDPOINT = 'https://api.waqi.info';
+
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
 
     /**
      * @param string $route
@@ -100,5 +109,23 @@ class ASQICNAPI {
         } catch (TransportExceptionInterface $e) {
             var_dump($e);
         }
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getFeedsByStation(int $id)
+    {
+        $stationFeedRepository = $this->em->getRepository(StationFeed::class);
+        $feeds = $stationFeedRepository->findBy(['idx' => $id], ['date' => 'DESC']);
+        $data = [];
+        foreach ($feeds as $feed) {
+            $data[] = [
+                'date' => $feed->getDate()->format('Y-m-d H:i:s'),
+                'data' => json_decode($feed->getData(), true),
+            ];
+        }
+        return $data;
     }
 }

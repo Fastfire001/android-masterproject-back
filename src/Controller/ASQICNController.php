@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\StationFeedRepository;
 use App\Service\ASQICNAPI;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,7 +55,7 @@ class ASQICNController extends AbstractController
     }
 
     /**
-     * @Route("/station/feed", name="ASQICN_station_feed")
+     * @Route("/station/feeds", name="ASQICN_station_feeds")
      * @param Request $request
      * @param ASQICNAPI $ASQICNAPI
      * @return JsonResponse
@@ -62,9 +63,9 @@ class ASQICNController extends AbstractController
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      */
-    public function getStationFeed(Request $request, ASQICNAPI $ASQICNAPI)
+    public function getStationFeeds(Request $request, ASQICNAPI $ASQICNAPI)
     {
-        $result = $ASQICNAPI->getStationFeed($request->query->get('id'));
-        return $this->json($result);
+        $feeds = $ASQICNAPI->getFeedsByStation($request->query->get('id'));
+        return $this->json($feeds);
     }
 }
