@@ -21,7 +21,7 @@ class ASQICNAPI {
      * format url with $route, API_ENDPOINT and API_KEY
      * @return string
      */
-    private function createUrl(string $route, array $params)
+    private function createUrl(string $route, array $params = [])
     {
         $url = self::API_ENDPOINT . $route . '/?token=' . self::API_KEY;
         foreach ($params as $key => $value) {
@@ -77,6 +77,28 @@ class ASQICNAPI {
         } catch (TransportExceptionInterface $e) {
             var_dump($e);
         }
+    }
 
+    /**
+     * @param string $id
+     * @return mixed
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * Make a request to /feed/:id
+     */
+    public function getStationFeed(string $id)
+    {
+        $httpClient = HttpClient::create();
+        try {
+            $response = $httpClient->request('GET', $this->createUrl("/feed/@$id"));
+            try {
+                return json_decode($response->getContent(), true);
+            } catch (Exception $e) {
+                var_dump($e);
+            }
+        } catch (TransportExceptionInterface $e) {
+            var_dump($e);
+        }
     }
 }

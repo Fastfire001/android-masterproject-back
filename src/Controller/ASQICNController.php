@@ -52,4 +52,19 @@ class ASQICNController extends AbstractController
         $result = $ASQICNAPI->search($request->query->get('keyword'));
         return $this->json($result);
     }
+
+    /**
+     * @Route("/station/feed", name="ASQICN_station_feed")
+     * @param Request $request
+     * @param ASQICNAPI $ASQICNAPI
+     * @return JsonResponse
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    public function getStationFeed(Request $request, ASQICNAPI $ASQICNAPI)
+    {
+        $result = $ASQICNAPI->getStationFeed($request->query->get('id'));
+        return $this->json($result);
+    }
 }
