@@ -93,7 +93,7 @@ class ASQICNAPI {
         try {
             $response = $httpClient->request('GET', $this->createUrl("/feed/@$id"));
             try {
-                return json_decode($response->getContent(), true);
+                return json_decode($response->getContent(), true)['data'];
             } catch (Exception $e) {
                 var_dump($e);
             }
