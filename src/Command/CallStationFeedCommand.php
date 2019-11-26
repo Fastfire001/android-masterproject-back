@@ -20,10 +20,10 @@ class CallStationFeedCommand extends Command
 
     private $em;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, ASQICNAPI $ASQICNAPI)
     {
-        $this->ASQICN = new ASQICNAPI();
         $this->em = $container->get('doctrine')->getManager();
+        $this->ASQICN = $ASQICNAPI;
         parent::__construct();
     }
 
