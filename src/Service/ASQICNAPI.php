@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\StationFeed;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -15,13 +17,20 @@ class ASQICNAPI {
 
     private const API_ENDPOINT = 'https://api.waqi.info';
 
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
     /**
      * @param string $route
      * @param array $params
      * format url with $route, API_ENDPOINT and API_KEY
      * @return string
      */
-    private function createUrl(string $route, array $params)
+    private function createUrl(string $route, array $params = [])
     {
         $url = self::API_ENDPOINT . $route . '/?token=' . self::API_KEY;
         foreach ($params as $key => $value) {
@@ -77,6 +86,46 @@ class ASQICNAPI {
         } catch (TransportExceptionInterface $e) {
             var_dump($e);
         }
+    }
 
+    /**
+     * @param string $id
+     * @return mixed
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * Make a request to /feed/:id
+     */
+    public function getStationFeed(string $id)
+    {
+        $httpClient = HttpClient::create();
+        try {
+            $response = $httpClient->request('GET', $this->createUrl("/feed/@$id"));
+            try {
+                return json_decode($response->getContent(), true)['data'];
+            } catch (Exception $e) {
+                var_dump($e);
+            }
+        } catch (TransportExceptionInterface $e) {
+            var_dump($e);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getFeedsByStation(int $id)
+    {
+        $stationFeedRepository = $this->em->getRepository(StationFeed::class);
+        $feeds = $stationFeedRepository->findBy(['idx' => $id], ['date' => 'DESC']);
+        $data = [];
+        foreach ($feeds as $feed) {
+            $data[] = [
+                'date' => $feed->getDate()->format('Y-m-d H:i:s'),
+                'data' => json_decode($feed->getData(), true),
+            ];
+        }
+        return $data;
     }
 }
